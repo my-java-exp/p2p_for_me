@@ -1,5 +1,3 @@
-import cmd
-from http import client
 import socket as s
 import threading
 import shlex
@@ -8,6 +6,7 @@ from config.p2p_dataclass import server_dataclass
 from config.p2p_funcs import log, returnFileType, lambda_log
 from config.p2p_commands import server_commands, client_commands
 
+# Client code
 class P2PClient:
     def __init__(self, host, port):
         self.host = host
@@ -28,6 +27,20 @@ class P2PClient:
                     self.socket.close()
                     break
                 
+                # For uLS command, we want to list files on server side
+                if command.startswith("uLS"):
+                    self.socket.sendall(command.encode())
+                    data = self.socket.recv(4096).decode()
+                    print("Files on server:")
+                    print(data)
+                    continue
+
+                # For mLS command, we want to list files on client side
+                elif command.startswith("mLS"):
+                    print("Files to upload: ")
+                    print(data)
+                    continue
+
                 if command.startswith("UPLOAD") or command.startswith("DOWNLOAD"):
                     self.socket.sendall(command.encode())
                     parts = shlex.split(command)
@@ -47,7 +60,7 @@ class P2PClient:
             log(f"Error connecting to server: {e}")
             return
     
-
+# Server code
 class P2PServer:
     def __init__(self):
         self.host = server_dataclass.host

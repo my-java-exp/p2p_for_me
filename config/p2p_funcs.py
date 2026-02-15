@@ -1,8 +1,6 @@
-from pydoc import text
 import socket
 import os
 import datetime
-import time
 
 from config.p2p_constants import BUFFER_SIZE, UPLOAD_PATH, DOWNLOAD_PATH, LOG_FILE
 
@@ -56,6 +54,14 @@ def upload(conn: socket.socket, filename, file_type="bytes file"):
     
     return ""
 
+def returnFileslist() -> list:
+    try:
+        files = os.listdir(UPLOAD_PATH)
+        return files
+    except Exception as e:
+        log(f"Error listing files: {e}")
+        return []
+ 
 def log(message):
     try:
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
